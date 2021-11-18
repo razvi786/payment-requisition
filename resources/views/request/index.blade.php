@@ -5,10 +5,10 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
+                <div class="card-header text-center h4">All Requests</div>
 
                 <div class="card-body">
-                    <livewire:user-table/>
+                    <livewire:all-request-table/>
 
 
                 </div>

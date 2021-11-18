@@ -2,6 +2,8 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\Request;
+use App\Models\Status;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\QueryException;
@@ -13,7 +15,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridEloquent;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 use PowerComponents\LivewirePowerGrid\Traits\ActionButton;
 
-class UserTable extends PowerGridComponent
+class AllRequestTable extends PowerGridComponent
 {
     use ActionButton;
 
@@ -27,7 +29,6 @@ class UserTable extends PowerGridComponent
     public function setUp()
     {
         $this->showPerPage()
-            ->showExportOption('download', ['excel', 'csv'])
             ->showSearchInput();
     }
 
@@ -40,7 +41,7 @@ class UserTable extends PowerGridComponent
     */
     public function datasource(): ?Builder
     {
-        return User::query();
+        return Request::query();
     }
 
     /*
@@ -67,14 +68,41 @@ class UserTable extends PowerGridComponent
     {
         return PowerGrid::eloquent()
             ->addColumn('id')
-            ->addColumn('name')
-            ->addColumn('email')
-            ->addColumn('phone')
-            ->addColumn('role')
-            ->addColumn('created_at_formatted', function(User $model) {
+            ->addColumn('description')
+            ->addColumn('invoice', function(Request $model) {
+                return "<a href='../../assets/invoices/".$model->invoice."' download>".$model->invoice."</a>";
+            })
+            ->addColumn('prf', function(Request $model) {
+                return "<a href='../../assets/prf/".$model->prf."' download>".$model->prf."</a>";
+            })
+            ->addColumn('feedback')
+            ->addColumn('status', function(Request $model) {
+                $classes = "badge rounded-pill text-uppercase m-3 p-2 ";
+                if(str_contains($model->status, 'Request Raised')){
+                    $classes .= "bg-primary text-white";
+                }else if(str_contains($model->status, 'Approved By Manager')){
+                    $classes .= "bg-warning text-dark";
+                }else if(str_contains($model->status, 'Approved By Accounts Team')){
+                    $classes .= "bg-success text-white";
+                }else if(str_contains($model->status, 'Denied')){
+                    $classes .= "bg-danger text-white";
+                }else if(str_contains($model->status, 'Completed')){
+                    $classes .= "bg-dark text-white";
+                }else{
+                    $classes .= "bg-info text-dark";
+                }
+                return "<a href='./request/" .$model->id. "'><span class='" .$classes. "'>" .$model->status. "</span></a>";
+            })
+            ->addColumn('raised_by', function(Request $model) {
+                return $model->raisedBy->email;
+            })
+            ->addColumn('raised_to',function(Request $model) {
+                return $model->raisedTo->email;
+            })
+            ->addColumn('created_at_formatted', function(Request $model) {
                 return Carbon::parse($model->created_at)->format('d/m/Y H:i:s');
             })
-            ->addColumn('updated_at_formatted', function(User $model) {
+            ->addColumn('updated_at_formatted', function(Request $model) {
                 return Carbon::parse($model->updated_at)->format('d/m/Y H:i:s');
             });
     }
@@ -93,31 +121,49 @@ class UserTable extends PowerGridComponent
             Column::add()
                 ->title(__('ID'))
                 ->field('id')
+                ->sortable()
                 ->searchable()
-                ->sortable(),
+                ->makeInputText(),
 
             Column::add()
-                ->title(__('Name'))
-                ->field('name')
-                ->searchable()
-                ->sortable(),
+                ->title(__('STATUS'))
+                ->field('status')
+                ->bodyAttribute('text-center')
+                ->sortable()
+                ->searchable(),
+                // ->makeInputSelect(Status::all(), 'type', 'status', ['live-search' => true]),
 
             Column::add()
-                ->title(__('Email ID'))
-                ->field('email')
-                ->searchable()
-                ->sortable(),
-
-            Column::add()
-                ->title(__('Phone Number'))
-                ->field('phone')
+                ->title(__('DESCRIPTION'))
+                ->field('description')
                 ->searchable(),
 
             Column::add()
-                ->title(__('Role'))
-                ->field('role')
-                ->searchable()
-                ->sortable(),
+                ->title(__('INVOICE'))
+                ->field('invoice')
+                ->searchable(),
+
+            Column::add()
+                ->title(__('PRF'))
+                ->field('prf')
+                ->searchable(),
+
+            Column::add()
+                ->title(__('FEEDBACK'))
+                ->field('feedback')
+                ->searchable(),
+
+            Column::add()
+                ->title(__('RAISED BY'))
+                ->field('raised_by')
+                ->searchable(),
+                // ->makeInputSelect(User::all(), 'email', 'id', ['live-search' => true]),
+
+            Column::add()
+                ->title(__('RAISED TO'))
+                ->field('raised_to')
+                ->searchable(),
+                // ->makeInputSelect(User::all(), 'email', 'id', ['live-search' => true]),
 
             Column::add()
                 ->title(__('CREATED AT'))
@@ -133,7 +179,8 @@ class UserTable extends PowerGridComponent
                 ->sortable()
                 ->makeInputDatePicker('updated_at'),
 
-        ];
+        ]
+;
     }
 
     /*
@@ -151,12 +198,12 @@ class UserTable extends PowerGridComponent
            Button::add('edit')
                ->caption(__('Edit'))
                ->class('bg-indigo-500 text-white')
-               ->route('user.edit', ['user' => 'id']),
+               ->route('request.edit', ['request' => 'id']),
 
            Button::add('destroy')
                ->caption(__('Delete'))
                ->class('bg-red-500 text-white')
-               ->route('user.destroy', ['user' => 'id'])
+               ->route('request.destroy', ['request' => 'id'])
                ->method('delete')
         ];
     }
@@ -166,8 +213,7 @@ class UserTable extends PowerGridComponent
     |--------------------------------------------------------------------------
     | Edit Method
     |--------------------------------------------------------------------------
-    | Enable this section to use editOnClick() or toggleable() methods.
-    | Data must be validated and treated (see "Update Data" in PowerGrid doc).
+    | Enable this section to use editOnClick() or toggleable() methods
     |
     */
 
@@ -175,7 +221,7 @@ class UserTable extends PowerGridComponent
     public function update(array $data ): bool
     {
        try {
-           $updated = User::query()->find($data['id'])->update([
+           $updated = Request::query()->find($data['id'])->update([
                 $data['field'] => $data['value']
            ]);
        } catch (QueryException $exception) {
@@ -205,4 +251,5 @@ class UserTable extends PowerGridComponent
     {
         return null;
     }
+
 }

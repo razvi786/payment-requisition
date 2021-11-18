@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\ActionController;
+use App\Http\Controllers\MailController;
+use App\Http\Controllers\RequestController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,4 +23,13 @@ Route::get('/', function () {
 
 Auth::routes();
 
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('action/trigger/{id}', 'ActionController@show')->name('action.trigger');
+
+Route::get('/send-email/{requestId}', [MailController::class, 'sendEmail']);
+
+Route::resource('user', UserController::class);
+Route::resource('request', RequestController::class);
+Route::resource('action', ActionController::class);

@@ -58,24 +58,41 @@
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                         document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
+                            @auth
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link" href="{{ route('request.create') }}">Raise Request</a>
+                                </li>
+                                <li class="nav-item mx-2">
+                                    <a class="nav-link" href="{{ route('user.index') }}">Users</a>
+                                </li>
+                                <li class="nav-item mr-3">
+                                    <a class="nav-link" href="{{ route('request.index') }}">Requests</a>
+                                </li>
+                                <li class="nav-item dropdown badge rounded-pill bg-light">
+                                    <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                        {{ Auth::user()->name }}
                                     </a>
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                        class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item">
+                                            {{ Auth::user()->email }}
+                                        </a><br>
+                                        <a class="dropdown-item">
+                                            {{ Auth::user()->phone }}
+                                        </a><br>
+                                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                                            document.getElementById('logout-form').submit();">
+                                            {{ __('Logout') }}
+                                        </a>
+
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                            class="d-none">
+                                            @csrf
+                                        </form>
+                                    </div>
+                                </li>
+                            @endauth
                         @endguest
                     </ul>
                 </div>
