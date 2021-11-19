@@ -19,7 +19,7 @@
             </div>
 
             <div class="form-group row">
-                <label for="view" class="col-md-4 col-form-label text-md-right"><a href="http://127.0.0.1:8000/request/{{$details->id}}">View Request</a></label>
+                <label for="view" class="col-md-4 col-form-label text-md-right"><a href="{{ env('HOSTNAME', 'http://127.0.0.1:8000') }}/request/{{$details->id}}">View Request</a></label>
             </div>
 
         </div>

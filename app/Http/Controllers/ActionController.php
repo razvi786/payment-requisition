@@ -100,7 +100,7 @@ class ActionController extends Controller
 
         ]);
 
-        return redirect()->route('request.index')->with('message', 'The Request is ', ($actionType == 'approve') ? "Approved" : "Denied");
+        return redirect('/send-email/'. $request->id);
     }
 
     /**

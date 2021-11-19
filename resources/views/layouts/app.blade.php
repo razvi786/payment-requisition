@@ -98,8 +98,19 @@
                 </div>
             </div>
         </nav>
-
         <main class="py-4">
+            @if (session('message'))
+                <div style="width: 80vw;" class="mx-auto">
+                    <div class="alert alert-info alert-dismissible fade show text-center" role="alert">
+
+                        {{ session('message') }}
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            @endif
             @yield('content')
         </main>
     </div>

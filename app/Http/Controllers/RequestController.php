@@ -57,7 +57,7 @@ class RequestController extends Controller
             $request->prf->move(public_path('assets/prf'), $prfName);
         }
 
-        ModelsRequest::create([
+        $newRequest = ModelsRequest::create([
             'description' => $request->description,
             'raised_by' => auth()->user()->id,
             'raised_to' => $request->raised_to,
@@ -66,7 +66,7 @@ class RequestController extends Controller
             'status' => "Request Raised",
 
         ]);
-        return redirect()->route('request.index')->with('message', 'Request Raised Successfully');
+        return redirect('/send-email/'. $newRequest->id);
 
     }
 

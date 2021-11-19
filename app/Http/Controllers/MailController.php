@@ -16,6 +16,6 @@ class MailController extends Controller
         $email = $request->raisedTo->email;
 
         Mail::to($email)->send(new PaymentMail($request));
-        return 'Email Sent';
+        return redirect()->route('request.index')->with('message', 'Email Sent Successfully');;
     }
 }
